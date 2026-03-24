@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINOKLUB.TV :: Добро пожаловать</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: #0a0a0a;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,0,0.015) 2px,
+        rgba(0,255,0,0.015) 4px
+      );
+    color: #c8c8c8;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    min-height: 100vh;
+    cursor: crosshair;
+  }
+
+  /* CRT flicker */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(transparent 50%, rgba(0,0,0,0.08) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: flicker 0.15s infinite;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    96% { opacity: 0.9; }
+    100% { opacity: 1; }
+  }
+
+  /* HEADER */
+  #header {
+    background: #000;
+    border-bottom: 3px solid #ff0000;
+    padding: 8px 0 0 0;
+    text-align: center;
+  }
+
+  #site-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: #ff0000;
+    text-shadow:
+      2px 2px 0 #800000,
+      0 0 20px #ff000088,
+      0 0 40px #ff000044;
+    letter-spacing: 4px;
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { text-shadow: 2px 2px 0 #800000, 0 0 20px #ff000088, 0 0 40px #ff000044; }
+    50% { text-shadow: 2px 2px 0 #800000, 0 0 30px #ff0000cc, 0 0 60px #ff000088; }
+  }
+
+  #subtitle {
+    color: #888;
+    font-size: 14px;
+    letter-spacing: 8px;
+    padding: 4px 0 8px;
+  }
+
+  /* NAV */
+  #nav {
+    background: #111;
+    border-bottom: 2px solid #333;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  #nav a {
+    color: #00ff41;
+    text-decoration: none;
+    padding: 6px 18px;
+    font-size: 16px;
+    border-right: 1px solid #333;
+    transition: all 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  #nav a:hover {
+    background: #00ff41;
+    color: #000;
+  }
+
+  #nav a:first-child { border-left: 1px solid #333; }
+
+  /* MARQUEE */
+  .marquee-bar {
+    background: #000;
+    border-top: 1px solid #ff0000;
+    border-bottom: 1px solid #ff0000;
+    padding: 4px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .marquee-inner {
+    display: inline-block;
+    animation: marquee 25s linear infinite;
+    color: #ff0000;
+    font-size: 16px;
+    letter-spacing: 3px;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* MAIN LAYOUT */
+  #main {
+    display: grid;
+    grid-template-columns: 180px 1fr 160px;
+    gap: 8px;
+    padding: 8px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* PANELS */
+  .panel {
+    border: 2px solid #333;
+    background: #0d0d0d;
+  }
+
+  .panel-title {
+    background: #1a0000;
+    border-bottom: 2px solid #ff0000;
+    color: #ff0000;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    padding: 6px 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .panel-content {
+    padding: 8px;
+  }
+
+  /* LEFT SIDEBAR */
+  #sidebar-left .panel { margin-bottom: 8px; }
+
+  .menu-item {
+    display: block;
+    color: #00ff41;
+    text-decoration: none;
+    padding: 4px 6px;
+    font-size: 15px;
+    border-bottom: 1px solid #1a1a1a;
+    transition: all 0.1s;
+  }
+
+  .menu-item:hover {
+    color: #000;
+    background: #00ff41;
+  }
+
+  .menu-item::before { content: '► '; color: #ff0000; }
+  .menu-item:hover::before { color: #000; }
+
+  /* VISITOR COUNTER */
+  #counter {
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+  }
+
+  .counter-number {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    color: #ffcc00;
+    text-shadow: 0 0 8px #ffcc0088;
+    display: block;
+    letter-spacing: 3px;
+  }
+
+  /* STATUS LIGHTS */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 6px;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 14px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot.green {
+    background: #00ff41;
+    box-shadow: 0 0 6px #00ff41;
+    animation: blink-green 1.5s ease-in-out infinite;
+  }
+
+  .dot.red {
+    background: #ff0000;
+    box-shadow: 0 0 6px #ff0000;
+  }
+
+  .dot.yellow {
+    background: #ffcc00;
+    box-shadow: 0 0 6px #ffcc00;
+    animation: blink-yellow 2s ease-in-out infinite;
+  }
+
+  @keyframes blink-green {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  @keyframes blink-yellow {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+  }
+
+  /* CENTER — PLAYER */
+  #center { display: flex; flex-direction: column; gap: 8px; }
+
+  #player-panel { flex: 1; }
+
+  .player-box {
+    background: #000;
+    border: 3px inset #222;
+    position: relative;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .player-box video, .player-box iframe {
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  /* Static noise screen */
+  .static-screen {
+    width: 100%; height: 100%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .static-screen canvas {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.3;
+  }
+
+  .offline-text {
+    position: relative;
+    z-index: 2;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #fff;
+    text-align: center;
+    line-height: 2;
+    text-shadow: 2px 2px 0 #000;
+    animation: text-flicker 3s ease-in-out infinite;
+  }
+
+  @keyframes text-flicker {
+    0%, 90%, 100% { opacity: 1; }
+    92% { opacity: 0.2; }
+    94% { opacity: 1; }
+    96% { opacity: 0.4; }
+    98% { opacity: 1; }
+  }
+
+  /* SCHEDULE TABLE */
+  #schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  #schedule-table th {
+    background: #1a0000;
+    color: #ff0000;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 6px 8px;
+    text-align: left;
+    border: 1px solid #333;
+  }
+
+  #schedule-table td {
+    padding: 5px 8px;
+    border: 1px solid #1f1f1f;
+    vertical-align: top;
+  }
+
+  #schedule-table tr:hover td { background: #111; }
+
+  .time-col { color: #ffcc00; width: 70px; white-space: nowrap; }
+  .now-playing td { background: #0a1a0a !important; }
+  .now-playing .time-col { color: #00ff41; }
+  .live-badge {
+    background: #ff0000;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 2px 5px;
+    animation: blink-badge 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  @keyframes blink-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* RIGHT SIDEBAR */
+  #sidebar-right .panel { margin-bottom: 8px; }
+
+  .chat-area {
+    background: #000;
+    border: 1px inset #222;
+    height: 140px;
+    overflow-y: auto;
+    padding: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+
+  .chat-msg { margin-bottom: 3px; }
+  .chat-nick { color: #00ff41; }
+  .chat-nick.red { color: #ff6666; }
+  .chat-nick.yellow { color: #ffcc00; }
+
+  .chat-input-row { display: flex; gap: 4px; }
+  .chat-input-row input {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    color: #c8c8c8;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    padding: 3px 5px;
+    outline: none;
+  }
+  .chat-input-row input:focus { border-color: #00ff41; }
+  .chat-input-row button {
+    background: #1a0000;
+    border: 1px solid #ff0000;
+    color: #ff0000;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .chat-input-row button:hover { background: #ff0000; color: #000; }
+
+  .small-banner {
+    background: #000;
+    border: 2px solid #333;
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  .small-banner span { color: #ff0000; }
+  .small-banner a { color: #00ff41; text-decoration: none; }
+  .small-banner a:hover { text-decoration: underline; }
+
+  /* GIF placeholders */
+  .gif-box {
+    text-align: center;
+    padding: 6px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .fake-gif {
+    display: inline-block;
+    width: 88px; height: 31px;
+    background: linear-gradient(45deg, #111 25%, #1a1a1a 25%, #1a1a1a 50%, #111 50%, #111 75%, #1a1a1a 75%);
+    background-size: 8px 8px;
+    border: 1px solid #333;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #ff0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px auto;
+    animation: gif-cycle 0.5s steps(2) infinite;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  @keyframes gif-cycle {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3) hue-rotate(10deg); }
+  }
+
+  /* BOTTOM BAR */
+  #bottom-bar {
+    background: #000;
+    border-top: 2px solid #333;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #444;
+    margin-top: 8px;
+  }
+
+  #bottom-bar a { color: #333; text-decoration: none; }
+  #bottom-bar a:hover { color: #666; }
+
+  .blink {
+    animation: hard-blink 1s step-end infinite;
+    color: #ff0000;
+  }
+
+  @keyframes hard-blink { 0%, 100% { visibility: visible; } 50% { visibility: hidden; } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #333; }
+  ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+  /* Selection */
+  ::selection { background: #ff0000; color: #000; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="site-title">KINOKLUB.TV</div>
+  <div id="subtitle">[ ТВОЁ КИНО :: ТВОЁ ВРЕМЯ ]</div>
+</div>
+
+<div id="nav">
+  <a href="#">ЭФИР</a>
+  <a href="#">РАСПИСАНИЕ</a>
+  <a href="#">АРХИВ</a>
+  <a href="#">О НАС</a>
+  <a href="#">IRC</a>
+  <a href="#">ССЫЛКИ</a>
+</div>
+
+<div class="marquee-bar">
+  <span class="marquee-inner">
+    ★ ДОБРО ПОЖАЛОВАТЬ В KINOKLUB.TV ★ &nbsp;&nbsp;&nbsp; СЕГОДНЯ В ЭФИРЕ: ЕЩЁ НЕ ИЗВЕСТНО, НО БУДЕТ ХОРОШО &nbsp;&nbsp;&nbsp; ★ САЙТ В РАЗРАБОТКЕ ★ &nbsp;&nbsp;&nbsp; СКОРО ТРАНСЛЯЦИИ 24/7 &nbsp;&nbsp;&nbsp; ★ INVITE ONLY ★ &nbsp;&nbsp;&nbsp; НЕ ЗАБУДЬ ПОСТАВИТЬ В ЗАКЛАДКИ &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<div id="main">
+
+  <!-- LEFT SIDEBAR -->
+  <div id="sidebar-left">
+
+    <div class="panel">
+      <div class="panel-title">:: НАВИГАЦИЯ</div>
+      <div>
+        <a class="menu-item" href="#">Главная</a>
+        <a class="menu-item" href="#">Прямой эфир</a>
+        <a class="menu-item" href="#">Расписание</a>
+        <a class="menu-item" href="#">Фильмы</a>
+        <a class="menu-item" href="#">Сериалы</a>
+        <a class="menu-item" href="#">Аниме</a>
+        <a class="menu-item" href="#">Архив</a>
+        <a class="menu-item" href="#">Контакты</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">:: ОНЛАЙН</div>
+      <div class="panel-content" id="counter">
+        смотрит сейчас:<br>
+        <span class="counter-number" id="viewer-count">00000</span>
+        <br>
+        всего визитов:<br>
+        <span class="counter-number" id="visit-count">00000</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">:: СТАТУС</div>
+      <div>
+        <div class="status-row">
+          <div class="dot green"></div>
+          <span>Сервер</span>
+        </div>
+        <div class="status-row">
+          <div class="dot red"></div>
+          <span>Эфир</span>
+        </div>
+        <div class="status-row">
+          <div class="dot yellow"></div>
+          <span>IRC чат</span>
+        </div>
+        <div class="status-row">
+          <div class="dot green"></div>
+          <span>Архив</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">:: БАНЕРЫ</div>
+      <div class="gif-box">
+        <div class="fake-gif">KINOKLUB<br>.TV</div>
+        <div class="fake-gif">NOW<br>STREAMING</div>
+        <div class="fake-gif">INVITE<br>ONLY</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+
+    <div class="panel" id="player-panel">
+      <div class="panel-title">:: ПРЯМОЙ ЭФИР — <span id="channel-name">КАНАЛ 1</span> &nbsp; <span class="blink">●</span> <span id="live-status">ОФЛАЙН</span></div>
+      <div class="player-box">
+        <!-- Заглушка — здесь будет iframe/video когда настроишь трансляцию -->
+        <div class="static-screen">
+          <canvas id="static-canvas"></canvas>
+          <div class="offline-text">
+            СИГНАЛ НЕ НАЙДЕН<br>
+            <br>
+            ТРАНСЛЯЦИЯ<br>
+            СКОРО НАЧНЁТСЯ<br>
+            <br>
+            ОЖИДАЙТЕ...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">:: РАСПИСАНИЕ НА СЕГОДНЯ</div>
+      <div class="panel-content" style="padding:0;">
+        <table id="schedule-table">
+          <thead>
+            <tr>
+              <th>ВРЕМЯ</th>
+              <th>НАЗВАНИЕ</th>
+              <th>ЖАНР</th>
+              <th>ДЛИТЕЛЬНОСТЬ</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-body">
+            <!-- Заполняется JS ниже -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div id="sidebar-right">
+
+    <div class="panel">
+      <div class="panel-title">:: ЧАТ</div>
+      <div class="panel-content" style="padding:6px;">
+        <div class="chat-area" id="chat-area">
+          <div class="chat-msg"><span class="chat-nick">[Система]</span> Добро пожаловать в чат!</div>
+          <div class="chat-msg"><span class="chat-nick red">[kinobot]</span> Трансляция скоро начнётся.</div>
+          <div class="chat-msg"><span class="chat-nick yellow">[anon_237]</span> готов ждать</div>
+          <div class="chat-msg"><span class="chat-nick">[гость_99]</span> наконец-то</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Сообщение..." maxlength="80" />
+          <button onclick="sendChat()">ОК</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">:: СЕЙЧАС ИГРАЕТ</div>
+      <div class="panel-content" style="font-size:14px; line-height:2; color:#888;">
+        <span style="color:#ffcc00;">Канал:</span> KinoKlub TV<br>
+        <span style="color:#ffcc00;">Статус:</span> <span style="color:#ff4444;">Офлайн</span><br>
+        <span style="color:#ffcc00;">Следующий:</span> ???<br>
+        <span style="color:#ffcc00;">Зрители:</span> —<br>
+      </div>
+    </div>
+
+    <div class="small-banner">
+      <span>★</span> САЙТ СДЕЛАН<br>С ЛЮБОВЬЮ И<br>БОЛЬЮ <span>★</span><br>
+      <br>
+      лучший браузер:<br>
+      <a href="#">Internet Explorer 6</a><br>
+      разрешение: 800x600<br>
+    </div>
+
+    <div class="panel" style="margin-top:8px;">
+      <div class="panel-title">:: ДРУЗЬЯ САЙТА</div>
+      <div class="panel-content" style="font-size:14px; line-height:2.2;">
+        <a href="#" style="color:#00ff41; text-decoration:none;">► vasya.narod.ru</a><br>
+        <a href="#" style="color:#00ff41; text-decoration:none;">► kino2004.boom.ru</a><br>
+        <a href="#" style="color:#00ff41; text-decoration:none;">► darkfilm.nm.ru</a><br>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="marquee-bar" style="margin-top:8px;">
+  <span class="marquee-inner" style="animation-direction:reverse; color:#00ff41;">
+    &nbsp;&nbsp;&nbsp; KINOKLUB.TV &nbsp;&nbsp;&nbsp; © 2025 &nbsp;&nbsp;&nbsp; ВСЕ ПРАВА ЗАЩИЩЕНЫ БОГОМ И СОВЕСТЬЮ &nbsp;&nbsp;&nbsp; 18+ &nbsp;&nbsp;&nbsp; РАБОТАЕТ НА LINUX, МОЛИТВЕ И КОФЕ &nbsp;&nbsp;&nbsp; НЕ РЕКОМЕНДУЕТСЯ СМОТРЕТЬ ТРЕЗВЫМ &nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<div id="bottom-bar">
+  <span>KINOKLUB.TV :: v0.1-beta :: <span class="blink">работает</span></span>
+  <span>Лучше смотреть в темноте 🕶️</span>
+  <span><a href="#">Наверх ▲</a> | <a href="#">Контакт</a> | <a href="#">Sitemap</a></span>
+</div>
+
+<script>
+  // === СТАТИЧНЫЙ ШУМ НА ЭКРАНЕ ===
+  const canvas = document.getElementById('static-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function drawNoise() {
+    canvas.width = canvas.offsetWidth || 400;
+    canvas.height = canvas.offsetHeight || 225;
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      const v = Math.random() * 255;
+      imageData.data[i] = v;
+      imageData.data[i+1] = v;
+      imageData.data[i+2] = v;
+      imageData.data[i+3] = 255;
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  setInterval(drawNoise, 50);
+  drawNoise();
+
+  // === СЧЁТЧИК ПОСЕТИТЕЛЕЙ (декоративный) ===
+  function formatNum(n) { return String(n).padStart(5, '0'); }
+
+  const baseVisitors = 1337 + Math.floor(Math.random() * 500);
+  const baseViewers = Math.floor(Math.random() * 12);
+  document.getElementById('visit-count').textContent = formatNum(baseVisitors);
+  document.getElementById('viewer-count').textContent = formatNum(baseViewers);
+
+  // Слегка меняем viewers каждые несколько секунд
+  setInterval(() => {
+    const v = Math.max(0, baseViewers + Math.floor(Math.random() * 5 - 2));
+    document.getElementById('viewer-count').textContent = formatNum(v);
+  }, 7000);
+
+  // === РАСПИСАНИЕ ===
+  const schedule = [
+    { time: '18:00', title: 'СКОРО ЗДЕСЬ', genre: '???', duration: '???' },
+    { time: '20:00', title: 'БУДЕТ КИНО', genre: 'Ужасы', duration: '1ч 45м' },
+    { time: '22:00', title: 'ЕЩЁ КИНО', genre: 'Sci-Fi', duration: '2ч 10м' },
+    { time: '00:30', title: 'НОЧНОЙ СЕАНС', genre: 'Триллер', duration: '1ч 30м' },
+    { time: '02:00', title: 'ДЛЯ ТЕХ КТО НЕ СПИТ', genre: 'Культ', duration: '2ч 00м' },
+  ];
+
+  const tbody = document.getElementById('schedule-body');
+  schedule.forEach((item, i) => {
+    const tr = document.createElement('tr');
+    if (i === 0) tr.className = 'now-playing';
+    tr.innerHTML = `
+      <td class="time-col">${item.time}${i === 0 ? ' <span class="live-badge">LIVE</span>' : ''}</td>
+      <td style="color:${i === 0 ? '#fff' : '#aaa'}">${item.title}</td>
+      <td style="color:#666; font-size:13px;">${item.genre}</td>
+      <td style="color:#555; font-size:13px;">${item.duration}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // === ЧАТ (локальный, для красоты) ===
+  const chatArea = document.getElementById('chat-area');
+  const fakeMsgs = [
+    { nick: 'zxc_films', color: '', msg: 'когда начнём' },
+    { nick: 'M4TR1X', color: 'yellow', msg: 'ждём' },
+    { nick: 'kinobot', color: 'red', msg: 'Эфир скоро.' },
+    { nick: 'аноним', color: '', msg: '👀' },
+    { nick: 'ghost_777', color: '', msg: 'всё равно лучше чем нетфликс' },
+  ];
+
+  let msgIdx = 0;
+  function addFakeMsg() {
+    if (msgIdx >= fakeMsgs.length) return;
+    const m = fakeMsgs[msgIdx++];
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.innerHTML = `<span class="chat-nick ${m.color}">[${m.nick}]</span> ${m.msg}`;
+    chatArea.appendChild(div);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    setTimeout(addFakeMsg, 4000 + Math.random() * 5000);
+  }
+  setTimeout(addFakeMsg, 3000);
+
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.innerHTML = `<span class="chat-nick yellow">[ты]</span> ${msg}`;
+    chatArea.appendChild(div);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    input.value = '';
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendChat();
+  });
+</script>
+</body>
+</html>
