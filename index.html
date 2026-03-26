@@ -297,6 +297,25 @@
     98% { opacity: 1; }
   }
 
+  /* HLS PLAYER */
+  #live-video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+  }
+
+  .player-error {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    background: #000;
+  }
+
   /* SCHEDULE TABLE */
   #schedule-table {
     width: 100%;
@@ -548,18 +567,7 @@
     <div class="panel" id="player-panel">
       <div class="panel-title">:: ПРЯМОЙ ЭФИР — <span id="channel-name">КАНАЛ 1</span> &nbsp; <span class="blink">●</span> <span id="live-status">ОФЛАЙН</span></div>
       <div class="player-box">
-        <!-- Заглушка — здесь будет iframe/video когда настроишь трансляцию -->
-        <div class="static-screen">
-          <canvas id="static-canvas"></canvas>
-          <div class="offline-text">
-            СИГНАЛ НЕ НАЙДЕН<br>
-            <br>
-            ТРАНСЛЯЦИЯ<br>
-            СКОРО НАЧНЁТСЯ<br>
-            <br>
-            ОЖИДАЙТЕ...
-          </div>
-        </div>
+        <video id="live-video" controls autoplay muted playsinline></video>
       </div>
     </div>
 
@@ -646,27 +654,41 @@
   <span><a href="#">Наверх ▲</a> | <a href="#">Контакт</a> | <a href="#">Sitemap</a></span>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // === СТАТИЧНЫЙ ШУМ НА ЭКРАНЕ ===
-  const canvas = document.getElementById('static-canvas');
-  const ctx = canvas.getContext('2d');
+  // === HLS ПЛЕЕР ===
+  const STREAM_URL = 'https://dispatch-emacs-aspect-clocks.trycloudflare.com/iptv/channel/1.m3u8';
 
-  function drawNoise() {
-    canvas.width = canvas.offsetWidth || 400;
-    canvas.height = canvas.offsetHeight || 225;
-    const imageData = ctx.createImageData(canvas.width, canvas.height);
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      const v = Math.random() * 255;
-      imageData.data[i] = v;
-      imageData.data[i+1] = v;
-      imageData.data[i+2] = v;
-      imageData.data[i+3] = 255;
+  const video = document.getElementById('live-video');
+
+  function initPlayer() {
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        liveSyncDurationCount: 3,
+        liveMaxLatencyDurationCount: 6,
+      });
+      hls.loadSource(STREAM_URL);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {});
+        document.getElementById('live-status').textContent = 'ОНЛАЙН';
+        document.getElementById('live-status').style.color = '#00ff41';
+      });
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          document.getElementById('live-status').textContent = 'ОФЛАЙН';
+          document.getElementById('live-status').style.color = '#ff4444';
+          setTimeout(initPlayer, 10000); // retry через 10 сек
+        }
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari — нативная поддержка HLS
+      video.src = STREAM_URL;
+      video.play().catch(() => {});
     }
-    ctx.putImageData(imageData, 0, 0);
   }
 
-  setInterval(drawNoise, 50);
-  drawNoise();
+  initPlayer();
 
   // === СЧЁТЧИК ПОСЕТИТЕЛЕЙ (декоративный) ===
   function formatNum(n) { return String(n).padStart(5, '0'); }
