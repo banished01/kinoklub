@@ -132,11 +132,11 @@
 
   /* MAIN LAYOUT */
   #main {
-    display: grid;
-    grid-template-columns: 180px 1fr 160px;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     padding: 8px;
-    max-width: 1100px;
+    max-width: 960px;
     margin: 0 auto;
   }
 
@@ -159,86 +159,6 @@
 
   .panel-content {
     padding: 8px;
-  }
-
-  /* LEFT SIDEBAR */
-  #sidebar-left .panel { margin-bottom: 8px; }
-
-  .menu-item {
-    display: block;
-    color: #00ff41;
-    text-decoration: none;
-    padding: 4px 6px;
-    font-size: 15px;
-    border-bottom: 1px solid #1a1a1a;
-    transition: all 0.1s;
-  }
-
-  .menu-item:hover {
-    color: #000;
-    background: #00ff41;
-  }
-
-  .menu-item::before { content: '► '; color: #ff0000; }
-  .menu-item:hover::before { color: #000; }
-
-  /* VISITOR COUNTER */
-  #counter {
-    text-align: center;
-    padding: 8px;
-    font-size: 13px;
-    color: #666;
-    line-height: 1.8;
-  }
-
-  .counter-number {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 16px;
-    color: #ffcc00;
-    text-shadow: 0 0 8px #ffcc0088;
-    display: block;
-    letter-spacing: 3px;
-  }
-
-  /* STATUS LIGHTS */
-  .status-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 6px;
-    border-bottom: 1px solid #1a1a1a;
-    font-size: 14px;
-  }
-
-  .dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .dot.green {
-    background: #00ff41;
-    box-shadow: 0 0 6px #00ff41;
-    animation: blink-green 1.5s ease-in-out infinite;
-  }
-
-  .dot.red {
-    background: #ff0000;
-    box-shadow: 0 0 6px #ff0000;
-  }
-
-  .dot.yellow {
-    background: #ffcc00;
-    box-shadow: 0 0 6px #ffcc00;
-    animation: blink-yellow 2s ease-in-out infinite;
-  }
-
-  @keyframes blink-green {
-    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
-  }
-
-  @keyframes blink-yellow {
-    0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
   }
 
   /* CENTER — PLAYER */
@@ -464,93 +384,6 @@
   }
   @keyframes blink-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-  /* RIGHT SIDEBAR */
-  #sidebar-right .panel { margin-bottom: 8px; }
-
-  .chat-area {
-    background: #000;
-    border: 1px inset #222;
-    height: 140px;
-    overflow-y: auto;
-    padding: 4px;
-    font-size: 13px;
-    line-height: 1.6;
-    margin-bottom: 6px;
-  }
-
-  .chat-msg { margin-bottom: 3px; }
-  .chat-nick { color: #00ff41; }
-  .chat-nick.red { color: #ff6666; }
-  .chat-nick.yellow { color: #ffcc00; }
-
-  .chat-input-row { display: flex; gap: 4px; }
-  .chat-input-row input {
-    flex: 1;
-    background: #000;
-    border: 1px solid #333;
-    color: #c8c8c8;
-    font-family: 'VT323', monospace;
-    font-size: 15px;
-    padding: 3px 5px;
-    outline: none;
-  }
-  .chat-input-row input:focus { border-color: #00ff41; }
-  .chat-input-row button {
-    background: #1a0000;
-    border: 1px solid #ff0000;
-    color: #ff0000;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    padding: 3px 8px;
-    cursor: pointer;
-    transition: all 0.1s;
-  }
-  .chat-input-row button:hover { background: #ff0000; color: #000; }
-
-  .small-banner {
-    background: #000;
-    border: 2px solid #333;
-    padding: 8px;
-    text-align: center;
-    font-size: 13px;
-    color: #555;
-    line-height: 1.8;
-  }
-
-  .small-banner span { color: #ff0000; }
-  .small-banner a { color: #00ff41; text-decoration: none; }
-  .small-banner a:hover { text-decoration: underline; }
-
-  /* GIF placeholders */
-  .gif-box {
-    text-align: center;
-    padding: 6px;
-    border-bottom: 1px solid #1a1a1a;
-  }
-
-  .fake-gif {
-    display: inline-block;
-    width: 88px; height: 31px;
-    background: linear-gradient(45deg, #111 25%, #1a1a1a 25%, #1a1a1a 50%, #111 50%, #111 75%, #1a1a1a 75%);
-    background-size: 8px 8px;
-    border: 1px solid #333;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 5px;
-    color: #ff0000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2px auto;
-    animation: gif-cycle 0.5s steps(2) infinite;
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  @keyframes gif-cycle {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(1.3) hue-rotate(10deg); }
-  }
-
   /* BOTTOM BAR */
   #bottom-bar {
     background: #000;
@@ -608,67 +441,6 @@
 
 <div id="main">
 
-  <!-- LEFT SIDEBAR -->
-  <div id="sidebar-left">
-
-    <div class="panel">
-      <div class="panel-title">:: НАВИГАЦИЯ</div>
-      <div>
-        <a class="menu-item" href="#">Главная</a>
-        <a class="menu-item" href="#">Прямой эфир</a>
-        <a class="menu-item" href="#">Расписание</a>
-        <a class="menu-item" href="#">Фильмы</a>
-        <a class="menu-item" href="#">Сериалы</a>
-        <a class="menu-item" href="#">Аниме</a>
-        <a class="menu-item" href="#">Архив</a>
-        <a class="menu-item" href="#">Контакты</a>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">:: ОНЛАЙН</div>
-      <div class="panel-content" id="counter">
-        смотрит сейчас:<br>
-        <span class="counter-number" id="viewer-count">00000</span>
-        <br>
-        всего визитов:<br>
-        <span class="counter-number" id="visit-count">00000</span>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">:: СТАТУС</div>
-      <div>
-        <div class="status-row">
-          <div class="dot green"></div>
-          <span>Сервер</span>
-        </div>
-        <div class="status-row">
-          <div class="dot red"></div>
-          <span>Эфир</span>
-        </div>
-        <div class="status-row">
-          <div class="dot yellow"></div>
-          <span>IRC чат</span>
-        </div>
-        <div class="status-row">
-          <div class="dot green"></div>
-          <span>Архив</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">:: БАНЕРЫ</div>
-      <div class="gif-box">
-        <div class="fake-gif">KINOKLUB<br>.TV</div>
-        <div class="fake-gif">NOW<br>STREAMING</div>
-        <div class="fake-gif">INVITE<br>ONLY</div>
-      </div>
-    </div>
-
-  </div>
-
   <!-- CENTER -->
   <div id="center">
 
@@ -713,53 +485,6 @@
 
   </div>
 
-  <!-- RIGHT SIDEBAR -->
-  <div id="sidebar-right">
-
-    <div class="panel">
-      <div class="panel-title">:: ЧАТ</div>
-      <div class="panel-content" style="padding:6px;">
-        <div class="chat-area" id="chat-area">
-          <div class="chat-msg"><span class="chat-nick">[Система]</span> Добро пожаловать в чат!</div>
-          <div class="chat-msg"><span class="chat-nick red">[kinobot]</span> Трансляция скоро начнётся.</div>
-          <div class="chat-msg"><span class="chat-nick yellow">[anon_237]</span> готов ждать</div>
-          <div class="chat-msg"><span class="chat-nick">[гость_99]</span> наконец-то</div>
-        </div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input" placeholder="Сообщение..." maxlength="80" />
-          <button onclick="sendChat()">ОК</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">:: СЕЙЧАС ИГРАЕТ</div>
-      <div class="panel-content" style="font-size:14px; line-height:2; color:#888;">
-        <span style="color:#ffcc00;">Канал:</span> KinoKlub TV<br>
-        <span style="color:#ffcc00;">Статус:</span> <span style="color:#ff4444;">Офлайн</span><br>
-        <span style="color:#ffcc00;">Следующий:</span> ???<br>
-        <span style="color:#ffcc00;">Зрители:</span> —<br>
-      </div>
-    </div>
-
-    <div class="small-banner">
-      <span>★</span> САЙТ СДЕЛАН<br>С ЛЮБОВЬЮ И<br>БОЛЬЮ <span>★</span><br>
-      <br>
-      лучший браузер:<br>
-      <a href="#">Internet Explorer 6</a><br>
-      разрешение: 800x600<br>
-    </div>
-
-    <div class="panel" style="margin-top:8px;">
-      <div class="panel-title">:: ДРУЗЬЯ САЙТА</div>
-      <div class="panel-content" style="font-size:14px; line-height:2.2;">
-        <a href="#" style="color:#00ff41; text-decoration:none;">► vasya.narod.ru</a><br>
-        <a href="#" style="color:#00ff41; text-decoration:none;">► kino2004.boom.ru</a><br>
-        <a href="#" style="color:#00ff41; text-decoration:none;">► darkfilm.nm.ru</a><br>
-      </div>
-    </div>
-
-  </div>
 
 </div>
 
@@ -897,20 +622,6 @@
   showOffline();
   initPlayer();
 
-  // === СЧЁТЧИК ПОСЕТИТЕЛЕЙ (декоративный) ===
-  function formatNum(n) { return String(n).padStart(5, '0'); }
-
-  const baseVisitors = 1337 + Math.floor(Math.random() * 500);
-  const baseViewers = Math.floor(Math.random() * 12);
-  document.getElementById('visit-count').textContent = formatNum(baseVisitors);
-  document.getElementById('viewer-count').textContent = formatNum(baseViewers);
-
-  // Слегка меняем viewers каждые несколько секунд
-  setInterval(() => {
-    const v = Math.max(0, baseViewers + Math.floor(Math.random() * 5 - 2));
-    document.getElementById('viewer-count').textContent = formatNum(v);
-  }, 7000);
-
   // === РАСПИСАНИЕ ===
   const schedule = [
     { time: '18:00', title: 'СКОРО ЗДЕСЬ', genre: '???', duration: '???' },
@@ -933,44 +644,6 @@
     tbody.appendChild(tr);
   });
 
-  // === ЧАТ (локальный, для красоты) ===
-  const chatArea = document.getElementById('chat-area');
-  const fakeMsgs = [
-    { nick: 'zxc_films', color: '', msg: 'когда начнём' },
-    { nick: 'M4TR1X', color: 'yellow', msg: 'ждём' },
-    { nick: 'kinobot', color: 'red', msg: 'Эфир скоро.' },
-    { nick: 'аноним', color: '', msg: '👀' },
-    { nick: 'ghost_777', color: '', msg: 'всё равно лучше чем нетфликс' },
-  ];
-
-  let msgIdx = 0;
-  function addFakeMsg() {
-    if (msgIdx >= fakeMsgs.length) return;
-    const m = fakeMsgs[msgIdx++];
-    const div = document.createElement('div');
-    div.className = 'chat-msg';
-    div.innerHTML = `<span class="chat-nick ${m.color}">[${m.nick}]</span> ${m.msg}`;
-    chatArea.appendChild(div);
-    chatArea.scrollTop = chatArea.scrollHeight;
-    setTimeout(addFakeMsg, 4000 + Math.random() * 5000);
-  }
-  setTimeout(addFakeMsg, 3000);
-
-  function sendChat() {
-    const input = document.getElementById('chat-input');
-    const msg = input.value.trim();
-    if (!msg) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg';
-    div.innerHTML = `<span class="chat-nick yellow">[ты]</span> ${msg}`;
-    chatArea.appendChild(div);
-    chatArea.scrollTop = chatArea.scrollHeight;
-    input.value = '';
-  }
-
-  document.getElementById('chat-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendChat();
-  });
 </script>
 </body>
 </html>
