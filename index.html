@@ -316,6 +316,114 @@
     background: #000;
   }
 
+  /* OFFLINE OVERLAY */
+  .offline-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease;
+  }
+
+  .offline-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .offline-overlay canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.25;
+  }
+
+  .offline-scanlines {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.3) 2px,
+      rgba(0,0,0,0.3) 4px
+    );
+    pointer-events: none;
+  }
+
+  .offline-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .offline-icon {
+    font-size: 36px;
+    animation: icon-glitch 4s ease-in-out infinite;
+    filter: grayscale(1);
+  }
+
+  @keyframes icon-glitch {
+    0%, 100% { transform: translate(0, 0); filter: grayscale(1); }
+    20% { transform: translate(-2px, 1px); filter: grayscale(1) brightness(1.5); }
+    21% { transform: translate(3px, -1px); }
+    22% { transform: translate(0, 0); }
+    60% { transform: translate(0, 0); }
+    61% { transform: translate(1px, 2px) skewX(-2deg); }
+    62% { transform: translate(-1px, 0) skewX(0); }
+    63% { transform: translate(0, 0); }
+  }
+
+  .offline-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: #fff;
+    text-shadow:
+      2px 2px 0 #000,
+      0 0 20px rgba(255,255,255,0.3);
+    animation: text-flicker 3s ease-in-out infinite;
+    letter-spacing: 3px;
+  }
+
+  .offline-sub {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: #888;
+    letter-spacing: 4px;
+  }
+
+  .offline-retry {
+    margin-top: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: #ff0000;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+  }
+
+  .retry-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ff0000;
+    box-shadow: 0 0 6px #ff0000;
+    animation: retry-pulse 2s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  @keyframes retry-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.2; transform: scale(0.7); }
+  }
+
   /* SCHEDULE TABLE */
   #schedule-table {
     width: 100%;
@@ -568,6 +676,19 @@
       <div class="panel-title">:: ПРЯМОЙ ЭФИР — <span id="channel-name">КАНАЛ 1</span> &nbsp; <span class="blink">●</span> <span id="live-status">ОФЛАЙН</span></div>
       <div class="player-box">
         <video id="live-video" controls autoplay muted playsinline></video>
+        <!-- OFFLINE FALLBACK -->
+        <div class="offline-overlay" id="offline-overlay">
+          <canvas id="static-canvas"></canvas>
+          <div class="offline-content">
+            <div class="offline-icon">📡</div>
+            <div class="offline-text">НЕТ СИГНАЛА</div>
+            <div class="offline-sub">ОЖИДАНИЕ ЭФИРА...</div>
+            <div class="offline-retry" id="retry-indicator">
+              <span class="retry-dot"></span> ПЕРЕПОДКЛЮЧЕНИЕ
+            </div>
+          </div>
+          <div class="offline-scanlines"></div>
+        </div>
       </div>
     </div>
 
@@ -656,38 +777,124 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // === HLS ПЛЕЕР ===
-  const STREAM_URL = 'https://stream.kinoklub.club/iptv/channel/1.m3u8';
+  // === STATIC NOISE CANVAS ===
+  const staticCanvas = document.getElementById('static-canvas');
+  const staticCtx = staticCanvas.getContext('2d');
+  let noiseAnimId = null;
 
+  function resizeStaticCanvas() {
+    const box = staticCanvas.parentElement;
+    staticCanvas.width = box.clientWidth / 2; // lower res = more chunky = more retro
+    staticCanvas.height = box.clientHeight / 2;
+  }
+
+  function drawNoise() {
+    const w = staticCanvas.width;
+    const h = staticCanvas.height;
+    const imgData = staticCtx.createImageData(w, h);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const v = Math.random() * 255;
+      data[i] = v;
+      data[i+1] = v;
+      data[i+2] = v;
+      data[i+3] = 255;
+    }
+    staticCtx.putImageData(imgData, 0, 0);
+    noiseAnimId = requestAnimationFrame(drawNoise);
+  }
+
+  function startNoise() {
+    resizeStaticCanvas();
+    if (!noiseAnimId) drawNoise();
+  }
+
+  function stopNoise() {
+    if (noiseAnimId) {
+      cancelAnimationFrame(noiseAnimId);
+      noiseAnimId = null;
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    if (noiseAnimId) resizeStaticCanvas();
+  });
+
+  // === HLS ПЛЕЕР С OFFLINE ЗАГЛУШКОЙ ===
+  const STREAM_URL = 'https://stream.kinoklub.club/iptv/channel/1.m3u8';
   const video = document.getElementById('live-video');
+  const overlay = document.getElementById('offline-overlay');
+  let currentHls = null;
+
+  function showOffline() {
+    overlay.classList.remove('hidden');
+    video.style.display = 'none';
+    startNoise();
+    document.getElementById('live-status').textContent = 'ОФЛАЙН';
+    document.getElementById('live-status').style.color = '#ff4444';
+  }
+
+  function showOnline() {
+    overlay.classList.add('hidden');
+    video.style.display = 'block';
+    stopNoise();
+    document.getElementById('live-status').textContent = 'ОНЛАЙН';
+    document.getElementById('live-status').style.color = '#00ff41';
+  }
 
   function initPlayer() {
+    // Destroy previous instance
+    if (currentHls) {
+      currentHls.destroy();
+      currentHls = null;
+    }
+
     if (Hls.isSupported()) {
       const hls = new Hls({
         liveSyncDurationCount: 3,
         liveMaxLatencyDurationCount: 6,
+        manifestLoadingTimeOut: 8000,
+        manifestLoadingMaxRetry: 2,
+        levelLoadingTimeOut: 8000,
+        levelLoadingMaxRetry: 2,
       });
+      currentHls = hls;
+
       hls.loadSource(STREAM_URL);
       hls.attachMedia(video);
+
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => {});
-        document.getElementById('live-status').textContent = 'ОНЛАЙН';
-        document.getElementById('live-status').style.color = '#00ff41';
+        showOnline();
       });
+
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
-          document.getElementById('live-status').textContent = 'ОФЛАЙН';
-          document.getElementById('live-status').style.color = '#ff4444';
-          setTimeout(initPlayer, 10000); // retry через 10 сек
+          showOffline();
+          hls.destroy();
+          currentHls = null;
+          setTimeout(initPlayer, 10000);
         }
       });
+
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari — нативная поддержка HLS
+      // Safari
       video.src = STREAM_URL;
-      video.play().catch(() => {});
+      video.addEventListener('loadedmetadata', () => {
+        video.play().catch(() => {});
+        showOnline();
+      });
+      video.addEventListener('error', () => {
+        showOffline();
+        setTimeout(initPlayer, 10000);
+      });
+    } else {
+      showOffline();
     }
   }
 
+  // Start in offline state, then try to connect
+  showOffline();
   initPlayer();
 
   // === СЧЁТЧИК ПОСЕТИТЕЛЕЙ (декоративный) ===
