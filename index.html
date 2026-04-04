@@ -138,6 +138,11 @@
     padding: 8px;
     max-width: 960px;
     margin: 0 auto;
+    transition: max-width 0.3s ease;
+  }
+
+  #main.layout-side {
+    max-width: 1280px;
   }
 
   /* PANELS */
@@ -161,7 +166,49 @@
     padding: 8px;
   }
 
-  /* CENTER — PLAYER */
+  /* PLAYER + CHAT AREA */
+  #player-chat-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+
+  #player-chat-area.layout-side {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  #player-chat-area.layout-side #player-panel {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #player-chat-area.layout-side #chat-panel {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #player-chat-area.layout-side .chat-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #player-chat-area.layout-side #chat-interface {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #player-chat-area.layout-side #chat-messages {
+    flex: 1;
+    height: auto;
+  }
+
+  /* CENTER */
   #center { display: flex; flex-direction: column; gap: 8px; }
 
   #player-panel { flex: 1; }
@@ -182,33 +229,6 @@
     border: none;
   }
 
-  /* Static noise screen */
-  .static-screen {
-    width: 100%; height: 100%;
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .static-screen canvas {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    opacity: 0.3;
-  }
-
-  .offline-text {
-    position: relative;
-    z-index: 2;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    color: #fff;
-    text-align: center;
-    line-height: 2;
-    text-shadow: 2px 2px 0 #000;
-    animation: text-flicker 3s ease-in-out infinite;
-  }
-
   @keyframes text-flicker {
     0%, 90%, 100% { opacity: 1; }
     92% { opacity: 0.2; }
@@ -222,17 +242,6 @@
     width: 100%;
     height: 100%;
     display: block;
-    background: #000;
-  }
-
-  .player-error {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
     background: #000;
   }
 
@@ -417,7 +426,6 @@
     color: #c8c8c8;
   }
 
-  /* Nick colors cycle */
   .nick-0 { color: #00ff41; }
   .nick-1 { color: #ff0000; }
   .nick-2 { color: #ffcc00; }
@@ -454,6 +462,7 @@
     font-size: 17px;
     padding: 6px 10px;
     outline: none;
+    min-width: 0;
   }
 
   #chat-input::placeholder { color: #444; }
@@ -477,7 +486,7 @@
   }
 
   /* Chat login screen */
-  #chat-login {
+  .chat-login-screen {
     padding: 20px;
     text-align: center;
     display: flex;
@@ -503,6 +512,7 @@
     text-align: center;
     outline: none;
     width: 260px;
+    max-width: 100%;
     letter-spacing: 2px;
   }
 
@@ -533,23 +543,34 @@
     min-height: 20px;
   }
 
-  #chat-login-label {
+  .chat-login-label {
     color: #666;
     font-size: 16px;
   }
 
-  /* Chat online counter */
+  /* Chat panel title row */
   .chat-panel-title-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .chat-online {
+  /* Layout toggle button */
+  #layout-toggle {
+    background: none;
+    border: 1px solid #555;
+    color: #888;
     font-family: 'VT323', monospace;
-    font-size: 13px;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 1px 6px;
+    line-height: 1;
+    transition: all 0.1s;
+  }
+
+  #layout-toggle:hover {
     color: #00ff41;
-    letter-spacing: 1px;
+    border-color: #00ff41;
   }
 
   /* BOTTOM BAR */
@@ -583,6 +604,17 @@
 
   /* Selection */
   ::selection { background: #ff0000; color: #000; }
+
+  /* Mobile: always bottom layout, hide toggle */
+  @media (max-width: 768px) {
+    #layout-toggle { display: none; }
+    #player-chat-area.layout-side {
+      flex-direction: column !important;
+    }
+    #player-chat-area.layout-side #chat-panel {
+      width: 100% !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -608,30 +640,72 @@
 </div>
 
 <div id="main">
-
-  <!-- CENTER -->
   <div id="center">
 
-    <div class="panel" id="player-panel">
-      <div class="panel-title">:: ПРЯМОЙ ЭФИР — <span id="channel-name">КАНАЛ 1</span> &nbsp; <span class="blink">●</span> <span id="live-status">ОФЛАЙН</span></div>
-      <div class="player-box">
-        <video id="live-video" controls autoplay muted playsinline></video>
-        <!-- OFFLINE FALLBACK -->
-        <div class="offline-overlay" id="offline-overlay">
-          <canvas id="static-canvas"></canvas>
-          <div class="offline-content">
-            <div class="offline-icon">📡</div>
-            <div class="offline-text">НЕТ СИГНАЛА</div>
-            <div class="offline-sub">ОЖИДАНИЕ ЭФИРА...</div>
-            <div class="offline-retry" id="retry-indicator">
-              <span class="retry-dot"></span> ПЕРЕПОДКЛЮЧЕНИЕ
+    <!-- PLAYER + CHAT -->
+    <div id="player-chat-area">
+
+      <div class="panel" id="player-panel">
+        <div class="panel-title">:: ПРЯМОЙ ЭФИР — <span id="channel-name">КАНАЛ 1</span> &nbsp; <span class="blink">●</span> <span id="live-status">ОФЛАЙН</span></div>
+        <div class="player-box">
+          <video id="live-video" controls autoplay muted playsinline></video>
+          <div class="offline-overlay" id="offline-overlay">
+            <canvas id="static-canvas"></canvas>
+            <div class="offline-content">
+              <div class="offline-icon">📡</div>
+              <div class="offline-text">НЕТ СИГНАЛА</div>
+              <div class="offline-sub">ОЖИДАНИЕ ЭФИРА...</div>
+              <div class="offline-retry" id="retry-indicator">
+                <span class="retry-dot"></span> ПЕРЕПОДКЛЮЧЕНИЕ
+              </div>
             </div>
+            <div class="offline-scanlines"></div>
           </div>
-          <div class="offline-scanlines"></div>
         </div>
       </div>
+
+      <!-- CHAT -->
+      <div class="panel" id="chat-panel">
+        <div class="panel-title">
+          <div class="chat-panel-title-row">
+            <span>:: ЧАТ</span>
+            <button id="layout-toggle" onclick="toggleLayout()" title="Чат сбоку">⇄</button>
+          </div>
+        </div>
+
+        <div class="chat-inner">
+          <!-- Login -->
+          <div id="chat-login" class="chat-login-screen">
+            <div id="chat-login-title">ВВЕДИТЕ КОД ДОСТУПА</div>
+            <input type="password" id="access-code-input" class="chat-login-field" placeholder="••••••••" maxlength="64" autocomplete="off">
+            <div id="chat-error"></div>
+            <button id="access-code-btn" class="chat-login-btn" onclick="submitAccessCode()">ВОЙТИ</button>
+          </div>
+
+          <!-- Nick -->
+          <div id="chat-nick-screen" style="display:none;">
+            <div class="chat-login-screen">
+              <div class="chat-login-label">КАК ТЕБЯ ЗОВУТ?</div>
+              <input type="text" id="nick-input" class="chat-login-field" placeholder="АНОНИМ" maxlength="20" autocomplete="off">
+              <button class="chat-login-btn" onclick="submitNick()">В ЧАТ</button>
+            </div>
+          </div>
+
+          <!-- Chat -->
+          <div id="chat-interface" style="display:none;">
+            <div id="chat-messages"></div>
+            <div id="chat-input-row">
+              <div id="chat-nick-display"></div>
+              <input type="text" id="chat-input" placeholder="Напиши что-нибудь..." maxlength="500" autocomplete="off">
+              <button id="chat-send-btn" onclick="sendMessage()">ОТПР</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
+    <!-- SCHEDULE -->
     <div class="panel">
       <div class="panel-title">:: РАСПИСАНИЕ НА СЕГОДНЯ</div>
       <div class="panel-content" style="padding:0;">
@@ -644,50 +718,12 @@
               <th>ДЛИТЕЛЬНОСТЬ</th>
             </tr>
           </thead>
-          <tbody id="schedule-body">
-          </tbody>
+          <tbody id="schedule-body"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- CHAT -->
-    <div class="panel" id="chat-panel">
-      <div class="panel-title">
-        <div class="chat-panel-title-row">
-          <span>:: ЧАТ</span>
-        </div>
-      </div>
-
-      <!-- Login screen -->
-      <div id="chat-login">
-        <div id="chat-login-title">ВВЕДИТЕ КОД ДОСТУПА</div>
-        <input type="password" id="access-code-input" class="chat-login-field" placeholder="••••••••" maxlength="64" autocomplete="off">
-        <div id="chat-error"></div>
-        <button id="access-code-btn" class="chat-login-btn" onclick="submitAccessCode()">ВОЙТИ</button>
-      </div>
-
-      <!-- Nick screen (hidden) -->
-      <div id="chat-nick-screen" style="display:none;">
-        <div id="chat-login" style="display:flex;">
-          <div id="chat-login-label">КАК ТЕБЯ ЗОВУТ?</div>
-          <input type="text" id="nick-input" class="chat-login-field" placeholder="АНОНИМ" maxlength="20" autocomplete="off">
-          <button class="chat-login-btn" onclick="submitNick()">В ЧАТ</button>
-        </div>
-      </div>
-
-      <!-- Chat interface (hidden) -->
-      <div id="chat-interface" style="display:none;">
-        <div id="chat-messages"></div>
-        <div id="chat-input-row">
-          <div id="chat-nick-display"></div>
-          <input type="text" id="chat-input" placeholder="Напиши что-нибудь..." maxlength="500" autocomplete="off">
-          <button id="chat-send-btn" onclick="sendMessage()">ОТПР</button>
-        </div>
-      </div>
-    </div>
-
   </div>
-
 </div>
 
 <div class="marquee-bar" style="margin-top:8px;">
@@ -703,15 +739,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-<!-- Firebase SDKs (compat version for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
   // =============================================
-  // FIREBASE CONFIG
+  // FIREBASE
   // =============================================
   const firebaseConfig = {
     apiKey: "AIzaSyD8-ksvel-v5YWKJFccP2jJlnRzoKVWBiI",
@@ -725,17 +759,45 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-
-  // Hidden shared email for auth
   const SHARED_EMAIL = 'friends@kinoklub.club';
 
   // =============================================
-  // CHAT STATE
+  // LAYOUT TOGGLE
+  // =============================================
+  let isSideLayout = localStorage.getItem('kinoklub_layout') === 'side';
+
+  function applyLayout() {
+    const area = document.getElementById('player-chat-area');
+    const main = document.getElementById('main');
+    const btn = document.getElementById('layout-toggle');
+
+    if (isSideLayout) {
+      area.classList.add('layout-side');
+      main.classList.add('layout-side');
+      btn.textContent = '⇅';
+      btn.title = 'Чат снизу';
+    } else {
+      area.classList.remove('layout-side');
+      main.classList.remove('layout-side');
+      btn.textContent = '⇄';
+      btn.title = 'Чат сбоку';
+    }
+  }
+
+  function toggleLayout() {
+    isSideLayout = !isSideLayout;
+    localStorage.setItem('kinoklub_layout', isSideLayout ? 'side' : 'bottom');
+    applyLayout();
+  }
+
+  applyLayout();
+
+  // =============================================
+  // CHAT
   // =============================================
   let chatNick = localStorage.getItem('kinoklub_nick') || '';
   let isAuthed = false;
 
-  // Check if already logged in
   auth.onAuthStateChanged((user) => {
     if (user) {
       isAuthed = true;
@@ -747,9 +809,7 @@
     }
   });
 
-  // =============================================
-  // ACCESS CODE
-  // =============================================
+  // Access code
   const accessCodeInput = document.getElementById('access-code-input');
   accessCodeInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitAccessCode();
@@ -767,13 +827,10 @@
     auth.signInWithEmailAndPassword(SHARED_EMAIL, code)
       .then(() => {
         isAuthed = true;
-        if (chatNick) {
-          showChatInterface();
-        } else {
-          showNickScreen();
-        }
+        if (chatNick) showChatInterface();
+        else showNickScreen();
       })
-      .catch((err) => {
+      .catch(() => {
         errorEl.textContent = 'НЕВЕРНЫЙ КОД';
         btn.textContent = 'ВОЙТИ';
         accessCodeInput.value = '';
@@ -781,9 +838,7 @@
       });
   }
 
-  // =============================================
-  // NICK
-  // =============================================
+  // Nick
   function showNickScreen() {
     document.getElementById('chat-login').style.display = 'none';
     document.getElementById('chat-nick-screen').style.display = 'block';
@@ -802,13 +857,11 @@
     showChatInterface();
   }
 
-  // =============================================
-  // CHAT INTERFACE
-  // =============================================
+  // Interface
   function showChatInterface() {
     document.getElementById('chat-login').style.display = 'none';
     document.getElementById('chat-nick-screen').style.display = 'none';
-    document.getElementById('chat-interface').style.display = 'block';
+    document.getElementById('chat-interface').style.display = '';
     document.getElementById('chat-nick-display').textContent = chatNick + ':';
 
     const chatInput = document.getElementById('chat-input');
@@ -817,13 +870,10 @@
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Listen for messages
     listenMessages();
   }
 
-  // =============================================
-  // MESSAGES
-  // =============================================
+  // Messages
   function nickColor(nick) {
     let hash = 0;
     for (let i = 0; i < nick.length; i++) {
@@ -848,7 +898,6 @@
     const data = doc.data();
     const el = document.createElement('div');
     el.className = 'chat-msg';
-    el.dataset.id = doc.id;
     el.innerHTML =
       '<span class="msg-time">' + formatTime(data.ts) + '</span>' +
       '<span class="msg-nick ' + nickColor(data.nick) + '">' + escapeHtml(data.nick) + '</span>' +
@@ -856,7 +905,10 @@
     return el;
   }
 
+  let listening = false;
   function listenMessages() {
+    if (listening) return;
+    listening = true;
     const container = document.getElementById('chat-messages');
 
     db.collection('messages')
@@ -868,7 +920,6 @@
             container.appendChild(renderMessage(change.doc));
           }
         });
-        // Auto-scroll to bottom
         container.scrollTop = container.scrollHeight;
       });
   }
@@ -889,7 +940,7 @@
   }
 
   // =============================================
-  // STATIC NOISE CANVAS
+  // STATIC NOISE
   // =============================================
   const staticCanvas = document.getElementById('static-canvas');
   const staticCtx = staticCanvas.getContext('2d');
@@ -908,10 +959,7 @@
     const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
       const v = Math.random() * 255;
-      data[i] = v;
-      data[i+1] = v;
-      data[i+2] = v;
-      data[i+3] = 255;
+      data[i] = v; data[i+1] = v; data[i+2] = v; data[i+3] = 255;
     }
     staticCtx.putImageData(imgData, 0, 0);
     noiseAnimId = requestAnimationFrame(drawNoise);
@@ -923,15 +971,10 @@
   }
 
   function stopNoise() {
-    if (noiseAnimId) {
-      cancelAnimationFrame(noiseAnimId);
-      noiseAnimId = null;
-    }
+    if (noiseAnimId) { cancelAnimationFrame(noiseAnimId); noiseAnimId = null; }
   }
 
-  window.addEventListener('resize', () => {
-    if (noiseAnimId) resizeStaticCanvas();
-  });
+  window.addEventListener('resize', () => { if (noiseAnimId) resizeStaticCanvas(); });
 
   // =============================================
   // HLS PLAYER
@@ -958,10 +1001,7 @@
   }
 
   function initPlayer() {
-    if (currentHls) {
-      currentHls.destroy();
-      currentHls = null;
-    }
+    if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -973,7 +1013,6 @@
         levelLoadingMaxRetry: 2,
       });
       currentHls = hls;
-
       hls.loadSource(STREAM_URL);
       hls.attachMedia(video);
 
@@ -993,14 +1032,8 @@
 
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = STREAM_URL;
-      video.addEventListener('loadedmetadata', () => {
-        video.play().catch(() => {});
-        showOnline();
-      });
-      video.addEventListener('error', () => {
-        showOffline();
-        setTimeout(initPlayer, 10000);
-      });
+      video.addEventListener('loadedmetadata', () => { video.play().catch(() => {}); showOnline(); });
+      video.addEventListener('error', () => { showOffline(); setTimeout(initPlayer, 10000); });
     } else {
       showOffline();
     }
@@ -1032,7 +1065,6 @@
     `;
     tbody.appendChild(tr);
   });
-
 </script>
 </body>
 </html>
