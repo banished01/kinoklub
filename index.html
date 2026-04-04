@@ -384,6 +384,174 @@
   }
   @keyframes blink-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
+  /* ========== CHAT ========== */
+  #chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .chat-msg {
+    font-size: 17px;
+    line-height: 1.4;
+    padding: 2px 0;
+    border-bottom: 1px solid #1a1a1a;
+    word-wrap: break-word;
+  }
+
+  .chat-msg .msg-time {
+    color: #555;
+    font-size: 14px;
+    margin-right: 6px;
+  }
+
+  .chat-msg .msg-nick {
+    font-weight: bold;
+    margin-right: 6px;
+  }
+
+  .chat-msg .msg-text {
+    color: #c8c8c8;
+  }
+
+  /* Nick colors cycle */
+  .nick-0 { color: #00ff41; }
+  .nick-1 { color: #ff0000; }
+  .nick-2 { color: #ffcc00; }
+  .nick-3 { color: #00bfff; }
+  .nick-4 { color: #ff69b4; }
+  .nick-5 { color: #ff8c00; }
+  .nick-6 { color: #da70d6; }
+  .nick-7 { color: #7fff00; }
+
+  #chat-input-row {
+    display: flex;
+    gap: 0;
+    border-top: 2px solid #333;
+  }
+
+  #chat-nick-display {
+    background: #111;
+    color: #00ff41;
+    padding: 6px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    border-right: 1px solid #333;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+
+  #chat-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: none;
+    color: #c8c8c8;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    padding: 6px 10px;
+    outline: none;
+  }
+
+  #chat-input::placeholder { color: #444; }
+
+  #chat-send-btn {
+    background: #1a0000;
+    color: #ff0000;
+    border: none;
+    border-left: 1px solid #333;
+    padding: 6px 14px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+  }
+
+  #chat-send-btn:hover {
+    background: #ff0000;
+    color: #000;
+  }
+
+  /* Chat login screen */
+  #chat-login {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #chat-login-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #ff0000;
+    letter-spacing: 1px;
+  }
+
+  .chat-login-field {
+    background: #0a0a0a;
+    border: 2px solid #333;
+    color: #c8c8c8;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    padding: 8px 12px;
+    text-align: center;
+    outline: none;
+    width: 260px;
+    letter-spacing: 2px;
+  }
+
+  .chat-login-field:focus {
+    border-color: #ff0000;
+  }
+
+  .chat-login-btn {
+    background: #1a0000;
+    color: #ff0000;
+    border: 2px solid #ff0000;
+    padding: 8px 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+  }
+
+  .chat-login-btn:hover {
+    background: #ff0000;
+    color: #000;
+  }
+
+  #chat-error {
+    color: #ff4444;
+    font-size: 15px;
+    min-height: 20px;
+  }
+
+  #chat-login-label {
+    color: #666;
+    font-size: 16px;
+  }
+
+  /* Chat online counter */
+  .chat-panel-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-online {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: #00ff41;
+    letter-spacing: 1px;
+  }
+
   /* BOTTOM BAR */
   #bottom-bar {
     background: #000;
@@ -477,14 +645,48 @@
             </tr>
           </thead>
           <tbody id="schedule-body">
-            <!-- Заполняется JS ниже -->
           </tbody>
         </table>
       </div>
     </div>
 
-  </div>
+    <!-- CHAT -->
+    <div class="panel" id="chat-panel">
+      <div class="panel-title">
+        <div class="chat-panel-title-row">
+          <span>:: ЧАТ</span>
+        </div>
+      </div>
 
+      <!-- Login screen -->
+      <div id="chat-login">
+        <div id="chat-login-title">ВВЕДИТЕ КОД ДОСТУПА</div>
+        <input type="password" id="access-code-input" class="chat-login-field" placeholder="••••••••" maxlength="64" autocomplete="off">
+        <div id="chat-error"></div>
+        <button id="access-code-btn" class="chat-login-btn" onclick="submitAccessCode()">ВОЙТИ</button>
+      </div>
+
+      <!-- Nick screen (hidden) -->
+      <div id="chat-nick-screen" style="display:none;">
+        <div id="chat-login" style="display:flex;">
+          <div id="chat-login-label">КАК ТЕБЯ ЗОВУТ?</div>
+          <input type="text" id="nick-input" class="chat-login-field" placeholder="АНОНИМ" maxlength="20" autocomplete="off">
+          <button class="chat-login-btn" onclick="submitNick()">В ЧАТ</button>
+        </div>
+      </div>
+
+      <!-- Chat interface (hidden) -->
+      <div id="chat-interface" style="display:none;">
+        <div id="chat-messages"></div>
+        <div id="chat-input-row">
+          <div id="chat-nick-display"></div>
+          <input type="text" id="chat-input" placeholder="Напиши что-нибудь..." maxlength="500" autocomplete="off">
+          <button id="chat-send-btn" onclick="sendMessage()">ОТПР</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 
@@ -495,21 +697,207 @@
 </div>
 
 <div id="bottom-bar">
-  <span>KINOKLUB.TV :: v0.1-beta :: <span class="blink">работает</span></span>
+  <span>KINOKLUB.TV :: v0.2-beta :: <span class="blink">работает</span></span>
   <span>Лучше смотреть в темноте 🕶️</span>
   <span><a href="#">Наверх ▲</a> | <a href="#">Контакт</a> | <a href="#">Sitemap</a></span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<!-- Firebase SDKs (compat version for simplicity) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <script>
-  // === STATIC NOISE CANVAS ===
+  // =============================================
+  // FIREBASE CONFIG
+  // =============================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyD8-ksvel-v5YWKJFccP2jJlnRzoKVWBiI",
+    authDomain: "kinoklubchat.firebaseapp.com",
+    projectId: "kinoklubchat",
+    storageBucket: "kinoklubchat.firebasestorage.app",
+    messagingSenderId: "639030297941",
+    appId: "1:639030297941:web:852c4a53f763de7adbdbdc"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Hidden shared email for auth
+  const SHARED_EMAIL = 'friends@kinoklub.club';
+
+  // =============================================
+  // CHAT STATE
+  // =============================================
+  let chatNick = localStorage.getItem('kinoklub_nick') || '';
+  let isAuthed = false;
+
+  // Check if already logged in
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      isAuthed = true;
+      if (chatNick) {
+        showChatInterface();
+      } else {
+        showNickScreen();
+      }
+    }
+  });
+
+  // =============================================
+  // ACCESS CODE
+  // =============================================
+  const accessCodeInput = document.getElementById('access-code-input');
+  accessCodeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitAccessCode();
+  });
+
+  function submitAccessCode() {
+    const code = accessCodeInput.value.trim();
+    if (!code) return;
+
+    const errorEl = document.getElementById('chat-error');
+    const btn = document.getElementById('access-code-btn');
+    btn.textContent = '...';
+    errorEl.textContent = '';
+
+    auth.signInWithEmailAndPassword(SHARED_EMAIL, code)
+      .then(() => {
+        isAuthed = true;
+        if (chatNick) {
+          showChatInterface();
+        } else {
+          showNickScreen();
+        }
+      })
+      .catch((err) => {
+        errorEl.textContent = 'НЕВЕРНЫЙ КОД';
+        btn.textContent = 'ВОЙТИ';
+        accessCodeInput.value = '';
+        accessCodeInput.focus();
+      });
+  }
+
+  // =============================================
+  // NICK
+  // =============================================
+  function showNickScreen() {
+    document.getElementById('chat-login').style.display = 'none';
+    document.getElementById('chat-nick-screen').style.display = 'block';
+    document.getElementById('chat-interface').style.display = 'none';
+    const nickInput = document.getElementById('nick-input');
+    nickInput.focus();
+    nickInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitNick();
+    });
+  }
+
+  function submitNick() {
+    const input = document.getElementById('nick-input');
+    chatNick = input.value.trim() || 'АНОНИМ';
+    localStorage.setItem('kinoklub_nick', chatNick);
+    showChatInterface();
+  }
+
+  // =============================================
+  // CHAT INTERFACE
+  // =============================================
+  function showChatInterface() {
+    document.getElementById('chat-login').style.display = 'none';
+    document.getElementById('chat-nick-screen').style.display = 'none';
+    document.getElementById('chat-interface').style.display = 'block';
+    document.getElementById('chat-nick-display').textContent = chatNick + ':';
+
+    const chatInput = document.getElementById('chat-input');
+    chatInput.focus();
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Listen for messages
+    listenMessages();
+  }
+
+  // =============================================
+  // MESSAGES
+  // =============================================
+  function nickColor(nick) {
+    let hash = 0;
+    for (let i = 0; i < nick.length; i++) {
+      hash = nick.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return 'nick-' + (Math.abs(hash) % 8);
+  }
+
+  function formatTime(timestamp) {
+    if (!timestamp) return '';
+    const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function renderMessage(doc) {
+    const data = doc.data();
+    const el = document.createElement('div');
+    el.className = 'chat-msg';
+    el.dataset.id = doc.id;
+    el.innerHTML =
+      '<span class="msg-time">' + formatTime(data.ts) + '</span>' +
+      '<span class="msg-nick ' + nickColor(data.nick) + '">' + escapeHtml(data.nick) + '</span>' +
+      '<span class="msg-text">' + escapeHtml(data.text) + '</span>';
+    return el;
+  }
+
+  function listenMessages() {
+    const container = document.getElementById('chat-messages');
+
+    db.collection('messages')
+      .orderBy('ts', 'asc')
+      .limitToLast(100)
+      .onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            container.appendChild(renderMessage(change.doc));
+          }
+        });
+        // Auto-scroll to bottom
+        container.scrollTop = container.scrollHeight;
+      });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !isAuthed) return;
+
+    db.collection('messages').add({
+      nick: chatNick,
+      text: text,
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    input.value = '';
+    input.focus();
+  }
+
+  // =============================================
+  // STATIC NOISE CANVAS
+  // =============================================
   const staticCanvas = document.getElementById('static-canvas');
   const staticCtx = staticCanvas.getContext('2d');
   let noiseAnimId = null;
 
   function resizeStaticCanvas() {
     const box = staticCanvas.parentElement;
-    staticCanvas.width = box.clientWidth / 2; // lower res = more chunky = more retro
+    staticCanvas.width = box.clientWidth / 2;
     staticCanvas.height = box.clientHeight / 2;
   }
 
@@ -545,7 +933,9 @@
     if (noiseAnimId) resizeStaticCanvas();
   });
 
-  // === HLS ПЛЕЕР С OFFLINE ЗАГЛУШКОЙ ===
+  // =============================================
+  // HLS PLAYER
+  // =============================================
   const STREAM_URL = 'https://stream.kinoklub.club/iptv/channel/1.m3u8';
   const video = document.getElementById('live-video');
   const overlay = document.getElementById('offline-overlay');
@@ -568,7 +958,6 @@
   }
 
   function initPlayer() {
-    // Destroy previous instance
     if (currentHls) {
       currentHls.destroy();
       currentHls = null;
@@ -603,7 +992,6 @@
       });
 
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari
       video.src = STREAM_URL;
       video.addEventListener('loadedmetadata', () => {
         video.play().catch(() => {});
@@ -618,11 +1006,12 @@
     }
   }
 
-  // Start in offline state, then try to connect
   showOffline();
   initPlayer();
 
-  // === РАСПИСАНИЕ ===
+  // =============================================
+  // SCHEDULE
+  // =============================================
   const schedule = [
     { time: '18:00', title: 'СКОРО ЗДЕСЬ', genre: '???', duration: '???' },
     { time: '20:00', title: 'БУДЕТ КИНО', genre: 'Ужасы', duration: '1ч 45м' },
