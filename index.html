@@ -1043,28 +1043,113 @@
   initPlayer();
 
   // =============================================
-  // SCHEDULE
+  // DYNAMIC SCHEDULE FROM XMLTV
   // =============================================
-  const schedule = [
-    { time: '18:00', title: 'СКОРО ЗДЕСЬ', genre: '???', duration: '???' },
-    { time: '20:00', title: 'БУДЕТ КИНО', genre: 'Ужасы', duration: '1ч 45м' },
-    { time: '22:00', title: 'ЕЩЁ КИНО', genre: 'Sci-Fi', duration: '2ч 10м' },
-    { time: '00:30', title: 'НОЧНОЙ СЕАНС', genre: 'Триллер', duration: '1ч 30м' },
-    { time: '02:00', title: 'ДЛЯ ТЕХ КТО НЕ СПИТ', genre: 'Культ', duration: '2ч 00м' },
-  ];
+  const XMLTV_URL = 'https://stream.kinoklub.club/iptv/xmltv.xml';
 
-  const tbody = document.getElementById('schedule-body');
-  schedule.forEach((item, i) => {
-    const tr = document.createElement('tr');
-    if (i === 0) tr.className = 'now-playing';
-    tr.innerHTML = `
-      <td class="time-col">${item.time}${i === 0 ? ' <span class="live-badge">LIVE</span>' : ''}</td>
-      <td style="color:${i === 0 ? '#fff' : '#aaa'}">${item.title}</td>
-      <td style="color:#666; font-size:13px;">${item.genre}</td>
-      <td style="color:#555; font-size:13px;">${item.duration}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  function parseXmltvTime(str) {
+    // Format: "20260404053734 +0300"
+    if (!str) return null;
+    const y = str.slice(0,4), m = str.slice(4,6), d = str.slice(6,8);
+    const h = str.slice(8,10), min = str.slice(10,12), s = str.slice(12,14);
+    const tz = str.slice(15); // e.g. "+0300"
+    return new Date(`${y}-${m}-${d}T${h}:${min}:${s}${tz.slice(0,3)}:${tz.slice(3)}`);
+  }
+
+  function formatDuration(startDate, stopDate) {
+    const mins = Math.round((stopDate - startDate) / 60000);
+    if (mins < 60) return mins + 'м';
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? h + 'ч ' + m + 'м' : h + 'ч';
+  }
+
+  function formatHHMM(date) {
+    return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderSchedule(programmes) {
+    const tbody = document.getElementById('schedule-body');
+    const now = new Date();
+    tbody.innerHTML = '';
+
+    // Find current + upcoming (show up to 10 items)
+    const relevant = programmes
+      .filter(p => p.stop > now)
+      .slice(0, 10);
+
+    if (relevant.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:#555;text-align:center;padding:12px;">НЕТ ДАННЫХ О РАСПИСАНИИ</td></tr>';
+      return;
+    }
+
+    relevant.forEach((item) => {
+      const isCurrent = item.start <= now && item.stop > now;
+      const tr = document.createElement('tr');
+      if (isCurrent) tr.className = 'now-playing';
+
+      const timeStr = formatHHMM(item.start);
+      const dur = formatDuration(item.start, item.stop);
+      const displayTitle = item.subtitle
+        ? item.title + ' — ' + item.subtitle
+        : item.title;
+
+      tr.innerHTML =
+        '<td class="time-col">' + timeStr + (isCurrent ? ' <span class="live-badge">LIVE</span>' : '') + '</td>' +
+        '<td style="color:' + (isCurrent ? '#fff' : '#aaa') + '">' + escapeHtml(displayTitle) + '</td>' +
+        '<td style="color:#666; font-size:13px;">' + escapeHtml(item.category) + '</td>' +
+        '<td style="color:#555; font-size:13px;">' + dur + '</td>';
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function loadSchedule() {
+    fetch(XMLTV_URL)
+      .then(r => r.text())
+      .then(xmlStr => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlStr, 'text/xml');
+        const progs = xml.querySelectorAll('programme');
+        const programmes = [];
+
+        progs.forEach(p => {
+          const start = parseXmltvTime(p.getAttribute('start'));
+          const stop = parseXmltvTime(p.getAttribute('stop'));
+          const titleEl = p.querySelector('title');
+          const subEl = p.querySelector('sub-title');
+          const catEl = p.querySelector('category');
+          const epEl = p.querySelector('episode-num[system="onscreen"]');
+
+          let subtitle = '';
+          if (subEl) {
+            // Clean up dotted names like "S01E23.Rei.III" → "S01E23 Rei III"
+            subtitle = subEl.textContent.replace(/\./g, ' ').trim();
+          }
+
+          programmes.push({
+            start: start,
+            stop: stop,
+            title: titleEl ? titleEl.textContent : '???',
+            subtitle: subtitle,
+            category: catEl ? catEl.textContent : '',
+            episode: epEl ? epEl.textContent : ''
+          });
+        });
+
+        // Sort by start time
+        programmes.sort((a, b) => a.start - b.start);
+        renderSchedule(programmes);
+      })
+      .catch(() => {
+        const tbody = document.getElementById('schedule-body');
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#555;text-align:center;padding:12px;">ОШИБКА ЗАГРУЗКИ РАСПИСАНИЯ</td></tr>';
+      });
+  }
+
+  // Load schedule on start and refresh every 5 minutes
+  loadSchedule();
+  setInterval(loadSchedule, 5 * 60 * 1000);
 </script>
 </body>
 </html>
